@@ -201,9 +201,51 @@ function botMove() {
             }
         }
 
-//LINE 300
+        for (let column = 0; column < 7; column++) {
+            let sameTypeCounter = 0;
+            let previousPieceType = 'N';
+            for (let row = 5; row >= 0; row--) {
+                const currentPieceType = gameBoard[row][column];
+                if (currentPieceType != '_') {
+                    if (previousPieceType != currentPieceType) {
+                        sameTypeCounter = 1;
+                    } else {
+                        sameTypeCounter += 1;
+                    }
+                } else {
+                    if (sameTypeCounter != 0) {
+                        assignPointsToPosition(row, column, (10 ** (-1+sameTypeCounter)) * ((currentPieceType == thisPieceType && sameTypeCounter == 3)  ? 10 : 1));
+                    }
+                    break;
+                }
+            }
+        }
+
         return allMoves;
     }
 
     const allMoves = getNextMoves('C');
+
+    const sortedMovesByPoints = {};
+    for (let pair of allMoves) {
+        if (pair[1] in sortedMovesByPoints) {
+            sortedMovesByPoints[pair[1]].push(pair[0]);
+        } else {
+            sortedMovesByPoints[pair[1]] = [pair[1], [pair[0]]];
+        }
+    }
+
+    let foundSafeMove = false;
+    let firstBestMove = "";
+    const sortedMovesByPointsLength = sortedMovesByPoints.length;
+    for (let i = 0; i < sortedMovesByPoints; i++) {
+        if (foundSafeMove) {
+            break;
+        }
+        const it = sortedMovesByPoints[sortedMovesByPointsLength];
+        const samePointsMove = sortedMovesByPoints[it[0]];
+        while (samePointsMove.length > 0) {
+            
+        }
+    }
 }
