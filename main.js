@@ -3,8 +3,9 @@ const pieceHolder = document.getElementById("pieceHolder");
 
 const gameBoard = [];
 let selectedPlayerMove = 3;
+let playCD = false;
 let playerTurn = true;
-let playingBot = true;
+let playingBot = false;
 
 function wait(time) {
   return new Promise(resolve => {
@@ -14,31 +15,80 @@ function wait(time) {
   });
 }
 
-async function placeChip(row, column, pType) {
+function showWinLine(winLine) {
+  const allPlayPieces = document.getElementsByClassName("gamePlayPiece");
+  const allPlayPiecesLength = allPlayPieces.length;
+  for (let i = 0; i < allPlayPiecesLength; i++) {
+    const selectedPlayPiece = allPlayPieces[i];
+    const row = parseInt(selectedPlayPiece.dataset.row);
+    const column = parseInt(selectedPlayPiece.dataset.column);
+    const winLineLength = winLine.length;
+    let inWinLine = false;
+    for (let j = 0; j < winLineLength; j++) {
+      if (row == winLine[j][0] && column == winLine[j][1]) {
+        inWinLine = true;
+        break;
+      }
+    }
+    if (!inWinLine) {
+      selectedPlayPiece.style.transition = `${0.5}s linear`;
+      selectedPlayPiece.style.filter = "brightness(25%)";
+    }
+  }
+}
+
+async function playerPlaceChip(row, column, pType) {
   const newPiece = document.createElement("img")
   newPiece.src = `./assets/${(pType ? 'r' : 'y')}Piece.png`;
-  newPiece.id = "gamePlayPiece";
-  const doHorizontalTransition = (playingBot && !pType);
-  newPiece.style.left = (doHorizontalTransition ? "300px" : `${column * 100}px`);
+  newPiece.classList.add("gamePlayPiece");
+  newPiece.style.left = `${column * 100}px`;
   newPiece.style.top = "0px";
-  const botWaitTime = Math.abs(column-3)*0.25;
-  newPiece.style.transition = `${botWaitTime}s linear`;
+  newPiece.dataset.row = row;
+  newPiece.dataset.column = column;
   pieceHolder.appendChild(newPiece);
-  if (doHorizontalTransition) {
-    await wait(100);
-    newPiece.style.left = `${column * 100}px`
-    console.log(botWaitTime*100)
-    await wait(botWaitTime*100);
-  }
   newPiece.style.transition = `${0.125*(row+1)}s linear`;
   return new Promise(resolve => {
     setTimeout(() => {
       newPiece.style.top = `${(row+1) * 106.6667}px`;
       columnIndicator.style.opacity = "0";
+      columnIndicator.src = `./assets/${(pType ? 'y' : 'r')}Piece.png`;
       setTimeout(() => {
-        columnIndicator.src = `./assets/${(pType ? 'y' : 'r')}Piece.png`;
+        if (!playingBot) {
+          columnIndicator.style.opacity = "1";
+        }
         resolve();
       }, 500 + 0.125*(row+1));
+    }, 100);
+  })
+}
+
+async function botPlaceChip(row, column, pType) {
+  const newPiece = document.createElement("img")
+  newPiece.src = `./assets/${(pType ? 'r' : 'y')}Piece.png`;
+  newPiece.classList.add("gamePlayPiece");
+  newPiece.style.left = "300px";
+  newPiece.style.top = "0px";
+  newPiece.dataset.row = row;
+  newPiece.dataset.column = column;
+  pieceHolder.appendChild(newPiece);
+  newPiece.style.transition = `${Math.abs(column-3)*0.25}s linear`;
+  return new Promise(resolve => {
+    setTimeout(() => {
+      newPiece.style.left = `${column * 100}px`
+      setTimeout(() => {
+        newPiece.style.transition = `${0.125*(row+1)}s linear`;
+        setTimeout(() => {
+          newPiece.style.top = `${(row+1) * 106.6667}px`;
+          columnIndicator.style.opacity = "0";
+          columnIndicator.src = `./assets/${(pType ? 'y' : 'r')}Piece.png`;
+          setTimeout(() => {
+            if (!playingBot) {
+              columnIndicator.style.opacity = "1";
+            }
+            resolve();
+          }, 500 + 0.125*(row+1));
+        }, 100);
+      },(column != 3) ? (500 + Math.abs(column-3)*25) : 0);
     }, 100);
   })
 }
@@ -52,20 +102,52 @@ function establishPlayerInput() {
     });
     columnDiv[i].addEventListener("click", async function() {
       selectedPlayerMove = i;
-      if (playerTurn) {
+      if (playCD) {
+        return
+      }
+      if ((playingBot && playerTurn) || !playingBot) {
         const row = getRow(i);
         if (row == -1) {
           return;
         }
-        playerTurn = false;
-        gameBoard[row][i] = 'P';
-        await placeChip(row, i, true);
-        const results = botMove();
-        await wait(1500);
-        gameBoard[results[0]][results[1]] = 'C';
-        await placeChip(results[0], results[1], false);
-        playerTurn = true;
-        columnIndicator.style.opacity = "1";
+        playCD = true;
+        const playPiece = (!playingBot ? (playerTurn ? 'P' : 'C') : 'P');
+        gameBoard[row][i] = playPiece;
+        await playerPlaceChip(row, i, playerTurn);
+        const playerResults = won(playPiece);
+        if (playerResults[0]) {
+          playerTurn = true;
+          columnIndicator.style.opacity = "1";
+          showWinLine(playerResults[1]);
+          columnIndicator.src = "./assets/rPiece.png";
+          return;
+        }
+        if (boardFull()) {
+          playerTurn = true;
+          columnIndicator.style.opacity = "1";
+          columnIndicator.src = "./assets/rPiece.png";
+          return;
+        }
+        playerTurn = !playerTurn;
+        if (playingBot) {
+          const results = botMove();
+          await wait(1500);
+          gameBoard[results[0]][results[1]] = 'C';
+          await botPlaceChip(results[0], results[1], false);
+          playerTurn = true;
+          columnIndicator.style.opacity = "1";
+          const botResults = won('C');
+          if (botResults[0]) {
+            showWinLine(botResults[1]);
+            columnIndicator.src = "./assets/rPiece.png";
+            return;
+          }
+          if (boardFull()) {
+            columnIndicator.src = "./assets/rPiece.png";
+            return;
+          }
+        }
+        playCD = false;
       }
     });
   }
@@ -323,21 +405,34 @@ function boardFull() {
 }
 
 function won(currentPieceType) {
+  let winLine = [];
   for (let row = 0; row < 6; row++) {
     let matches = 0;
     for (let column = 0; column < 7; column++) {
-      matches = (gameBoard[row][column] == currentPieceType ? matches + 1 : 0);
+      const sameType = gameBoard[row][column] == currentPieceType;
+      if (sameType) {
+        matches++;
+        winLine.push([row, column]);
+      } else {
+        winLine = [];
+      }
       if (matches == 4) {
-        return true;
+        return [true, winLine];
       }
     }
   }
   for (let column = 0; column < 6; column++) {
     let matches = 0;
     for (let row = 5; row >= 0; row--) {
-      matches = (gameBoard[row][column] == currentPieceType ? matches + 1 : 0);
+      const sameType = gameBoard[row][column] == currentPieceType;
+      if (sameType) {
+        matches++;
+        winLine.push([row, column]);
+      } else {
+        winLine = [];
+      }
       if (matches == 4) {
-        return true;
+        return [true, winLine];
       }
     }
   }
@@ -349,33 +444,38 @@ function won(currentPieceType) {
     const duration = ((p + 4) < 7 ? p + 4 : 9 - p);
     let rightMatches = 0;
     let leftMatches = 0;
+    let rightWinLine = [];
+    let leftWinLine = [];
     for (let i = 0; i < duration; i++) {
       if (gameBoard[rightRow - i][rightColumn + i] == currentPieceType) {
+        rightWinLine.push([rightRow - i, rightColumn + i]);
         if (rightMatches == 3) {
-          return true;
+          return [true, rightWinLine];
         }
         rightMatches += 1;
       } else {
         rightMatches = 0;
+        rightWinLine = [];
       }
       if (gameBoard[leftRow - i][leftColumn - i] == currentPieceType) {
+        leftWinLine.push([leftRow - i, leftColumn - i]);
         if (leftMatches == 3) {
-          return true;
+          return [true, leftWinLine];
         }
         leftMatches += 1;
       } else {
         leftMatches = 0;
+        leftWinLine = [];
       }
     }
   }
-  return false;
+  return [false, null];
 }
 
 function getRow(column) {
   let row = 5;
   do {
     let pieceAtPosition = gameBoard[row][column];
-    console.log(pieceAtPosition)
     if (pieceAtPosition == '_') {
       return row;
     }

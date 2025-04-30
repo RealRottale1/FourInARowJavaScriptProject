@@ -21,12 +21,11 @@ html, body {
 
 #pieceHolder {
     position: absolute;
-    background-color: aqua;
     width: 700px;
     height: 100px;
 }
 
-#gamePlayPiece {
+.gamePlayPiece {
     z-index: 0;
     position: absolute;
     margin-bottom: 5px;
@@ -41,12 +40,11 @@ html, body {
     margin-bottom: 5px;
     width: 100px;
     height: 100px;
-    transition: left 0.3s linear;
+    transition: left 0.25s linear;
 }
 
 .column {
     z-index: 999;
-    background-color: rgba(125, 125, 125, 0.5);
     width: 100px;
     height: 650px;
 }
