@@ -251,42 +251,22 @@ function boardFull() {
   return true;
 }
 
-function winner() {
+function won(currentPieceType) {
   for (let row = 0; row < 6; row++) {
     let matches = 0;
-    let currentPieceType = gameBoard[row][0];
     for (let column = 0; column < 7; column++) {
-      if (gameBoard[row][column] != '_') {
-        if (currentPieceType == gameBoard[row][column]) {
-          matches += 1;
-          if (matches == 4) {
-            return currentPieceType;
-          }
-        } else {
-          matches = 0;
-          currentPieceType = gameBoard[row][column];
-        }
-      } else {
-        matches = 0;
+      matches = (gameBoard[row][column] == currentPieceType ? matches + 1 : 0);
+      if (matches == 4) {
+        return true;
       }
     }
   }
   for (let column = 0; column < 6; column++) {
     let matches = 0;
-    let currentPieceType = gameBoard[column][5];
     for (let row = 5; row >= 0; row--) {
-      if (gameBoard[row][column] != '_') {
-        if (currentPieceType == gameBoard[row][column]) {
-          matches += 1;
-          if (matches == 4) {
-            return currentPieceType;
-          }
-        } else {
-          matches = 0;
-          currentPieceType = gameBoard[row][column];
-        }
-      } else {
-        matches = 0;
+      matches = (gameBoard[row][column] == currentPieceType ? matches + 1 : 0);
+      if (matches == 4) {
+        return true;
       }
     }
   }
@@ -298,39 +278,40 @@ function winner() {
     const duration = ((p + 4) < 7 ? p + 4 : 9 - p);
     let rightMatches = 0;
     let leftMatches = 0;
-    let leftCurrentPieceType =  gameBoard[rightRow][rightColumn];
-    let rightCurrentPieceType = gameBoard[leftRow][leftColumn];
     for (let i = 0; i < duration; i++) {
-      const nextRightPiece = gameBoard[rightRow - i][rightColumn + i];
-      if (nextRightPiece != '_') {
-        if (nextRightPiece == rightCurrentPieceType) {
-          if (rightMatches == 3) {
-              return leftCurrentPieceType;
-          }
-          rightMatches += 1;
-        } else {
-            rightMatches = 0;
-            rightCurrentPieceType = nextRightPiece;
+      if (gameBoard[rightRow - i][rightColumn + i] == currentPieceType) {
+        if (rightMatches == 3) {
+          return true;
         }
+        rightMatches += 1;
       } else {
         rightMatches = 0;
       }
-      const nextLeftPiece = gameBoard[leftRow - i][leftColumn - i];
-      if (nextLeftPiece != '_') {
-        if (nextLeftPiece == rightCurrentPieceType) {
-          if (leftMatches == 3) {
-              return rightCurrentPieceType;
-          }
-          leftMatches += 1;
-        } else {
-            leftMatches = 0;
-            leftCurrentPieceType = nextLeftPiece;
+      if (gameBoard[leftRow - i][leftColumn - i] == currentPieceType) {
+        if (leftMatches == 3) {
+          return true;
         }
+        leftMatches += 1;
       } else {
         leftMatches = 0;
       }
     }
   }
+  return false;
+}
+
+function getRow(column) {
+  let row = 0;
+  do {
+    let pieceAtPosition = gameBoard[row][column];
+    if (pieceAtPosition == '_') {
+      row++;
+    } else {
+      row--;
+      break;
+    }
+  } while (true);
+  return (row == -1 ? -1 : row);
 }
 
 makeGameBoard();
