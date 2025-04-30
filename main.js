@@ -114,16 +114,16 @@ function botMove() {
           }
           const diagonals = [TLBRLine, BLTRLine];
           for (let i = 0; i < 2; i++) {
-            const leftDiagonalInGrid  = (-1 in diagonals[i] && diagonals[i][-1][0] != 'N');
-            const rightDiagonalInGrid = ( 1 in diagonals[i] && diagonals[i][ 1][0] != 'N');
+            const leftDiagonalInGrid = (-1 in diagonals[i] && diagonals[i][-1][0] != 'N');
+            const rightDiagonalInGrid = (1 in diagonals[i] && diagonals[i][1][0] != 'N');
 
             if (!leftDiagonalInGrid && !rightDiagonalInGrid) {
               continue;
             }
             else {
               if (diagonals[i][-1] && diagonals[i][1] && diagonals[i][-1][0] == diagonals[i][1][0] && diagonals[i][-1][0] == currentPieceType) {
-                let farLeftDiagonalInGrid  = (-2 in diagonals[i] && diagonals[i][-2][0] != 'N');
-                let farRightDiagonalInGrid = ( 2 in diagonals[i] && diagonals[i][2][0] != 'N');
+                let farLeftDiagonalInGrid = (-2 in diagonals[i] && diagonals[i][-2][0] != 'N');
+                let farRightDiagonalInGrid = (2 in diagonals[i] && diagonals[i][2][0] != 'N');
 
                 if (!farLeftDiagonalInGrid && !farRightDiagonalInGrid) {
                   continue;
@@ -133,7 +133,7 @@ function botMove() {
                   const position = diagonals[i][useDif][1];
                   assignPointsToPosition(position[0], position[1], 100 * (currentPieceType == thisPieceType ? 10 : 1) - 10);
                 } else if (farLeftDiagonalInGrid && farRightDiagonalInGrid && diagonals[i][-2][0] == diagonals[i][2][0] && diagonals[i][-2][0] == '_') {
-                  const farLeftPosition  = diagonals[i][-2][1];
+                  const farLeftPosition = diagonals[i][-2][1];
                   const farRightPosition = diagonals[i][2][1];
                   assignPointsToPosition(farLeftPosition[0], farLeftPosition[1], 100 * (currentPieceType == thisPieceType ? 10 : 1) - 10);
                   assignPointsToPosition(farRightPosition[0], farRightPosition[1], 100 * (currentPieceType == thisPieceType ? 10 : 1) - 10);
@@ -145,7 +145,7 @@ function botMove() {
             const endPiece = getPiece(row, column + 3);
             if (endPiece == currentPieceType) {
               const secondPiece = getPiece(row, column + 1);
-              const thirdPiece  = getPiece(row, column + 2);
+              const thirdPiece = getPiece(row, column + 2);
               if (secondPiece == thirdPiece && secondPiece == '_') {
                 assignPointsToPosition(row, column + 1, 10);
                 assignPointsToPosition(row, column + 2, 10);
@@ -156,10 +156,10 @@ function botMove() {
             }
           }
         } else {
-          const leftInGrid2  = (column - 1 != -1);
+          const leftInGrid2 = (column - 1 != -1);
           const rightInGrid2 = (column + 1 != 7);
           if (leftInGrid2 && rightInGrid2) {
-            const leftPiece2  = getPiece(row, column - 1);
+            const leftPiece2 = getPiece(row, column - 1);
             const rightPiece2 = getPiece(row, column + 1);
             if (leftPiece2 == rightPiece2 && leftPiece2 != '_' && leftPiece2 != 'N') {
               assignPointsToPosition(row, column, 9);
@@ -169,7 +169,7 @@ function botMove() {
       }
     }
     for (let column = 0; column < 7; column++) {
-      let sameTypeCounter   = 0;
+      let sameTypeCounter = 0;
       let previousPieceType = 'N';
       for (let row = 5; row >= 0; row--) {
         const currentPieceType = personalGameBoard[row][column];
@@ -237,6 +237,99 @@ function botMove() {
     const row = parseInt(firstBestMove[0]);
     const column = firstBestMove[1].charCodeAt(0) - 65;
     return [row, column];
+  }
+}
+
+function boardFull() {
+  for (let row = 0; row < 6; row++) {
+    for (let column = 0; column < 7; column++) {
+      if (gameBoard[row][column] == '_') {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+function winner() {
+  for (let row = 0; row < 6; row++) {
+    let matches = 0;
+    let currentPieceType = gameBoard[row][0];
+    for (let column = 0; column < 7; column++) {
+      if (gameBoard[row][column] != '_') {
+        if (currentPieceType == gameBoard[row][column]) {
+          matches += 1;
+          if (matches == 4) {
+            return currentPieceType;
+          }
+        } else {
+          matches = 0;
+          currentPieceType = gameBoard[row][column];
+        }
+      } else {
+        matches = 0;
+      }
+    }
+  }
+  for (let column = 0; column < 6; column++) {
+    let matches = 0;
+    let currentPieceType = gameBoard[column][5];
+    for (let row = 5; row >= 0; row--) {
+      if (gameBoard[row][column] != '_') {
+        if (currentPieceType == gameBoard[row][column]) {
+          matches += 1;
+          if (matches == 4) {
+            return currentPieceType;
+          }
+        } else {
+          matches = 0;
+          currentPieceType = gameBoard[row][column];
+        }
+      } else {
+        matches = 0;
+      }
+    }
+  }
+  for (let p = 0; p < 6; p++) {
+    const rightRow = ((p + 3) > 5 ? 5 : p + 3);
+    const rightColumn = ((p - 2) < 0 ? 0 : p - 2);
+    const leftRow = ((p - 3) > 0 ? 8 - p : 5);
+    const leftColumn = ((p + 3) < 6 ? p + 3 : 6);
+    const duration = ((p + 4) < 7 ? p + 4 : 9 - p);
+    let rightMatches = 0;
+    let leftMatches = 0;
+    let leftCurrentPieceType =  gameBoard[rightRow][rightColumn];
+    let rightCurrentPieceType = gameBoard[leftRow][leftColumn];
+    for (let i = 0; i < duration; i++) {
+      const nextRightPiece = gameBoard[rightRow - i][rightColumn + i];
+      if (nextRightPiece != '_') {
+        if (nextRightPiece == rightCurrentPieceType) {
+          if (rightMatches == 3) {
+              return leftCurrentPieceType;
+          }
+          rightMatches += 1;
+        } else {
+            rightMatches = 0;
+            rightCurrentPieceType = nextRightPiece;
+        }
+      } else {
+        rightMatches = 0;
+      }
+      const nextLeftPiece = gameBoard[leftRow - i][leftColumn - i];
+      if (nextLeftPiece != '_') {
+        if (nextLeftPiece == rightCurrentPieceType) {
+          if (leftMatches == 3) {
+              return rightCurrentPieceType;
+          }
+          leftMatches += 1;
+        } else {
+            leftMatches = 0;
+            leftCurrentPieceType = nextLeftPiece;
+        }
+      } else {
+        leftMatches = 0;
+      }
+    }
   }
 }
 
