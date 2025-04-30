@@ -1,0 +1,36 @@
+
+html, body {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#gameBoardDiv {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-items: center;
+}
+
+#columnDiv {
+    display: flex;
+    align-items: center;
+}
+
+#columnIndicator {
+    position: relative;
+    top: 0;
+    left: 0;
+    background-color: blueviolet;
+    width: 100px;
+    height: 25px;
+}
+
+.column {
+    background-color: gray;
+    outline: 5px solid blue;
+    width: 100px;
+    height: 500px;
+}

@@ -1,10 +1,37 @@
 const gameBoard = [];
+let selectedPlayerMove = 3;
+let playerTurn = true;
+
+function establishPlayerInput() {
+  const columnIndicator = document.getElementById("columnIndicator");
+  const columnDiv = document.getElementsByClassName("column");
+  for (let i = 0; i < 7; i++) {
+    columnDiv[i].addEventListener("mouseover", function() {
+      columnIndicator.style.left = `${(i-3) * 100}px`;
+      selectedPlayerMove = i;
+    });
+    columnDiv[i].addEventListener("click", function() {
+      if (playerTurn) {
+        const row = getRow(i);
+        if (row == -1) {
+          return;
+        }
+        playerTurn = false
+        gameBoard[row][i] = 'P';
+        const results = botMove();
+        gameBoard[results[0]][results[1]] = 'C';
+        playerTurn = true;
+        console.log(gameBoard)
+      }
+    });
+  }
+}
 
 function makeGameBoard() {
   for (let i = 0; i < 6; i++) {
     gameBoard[i] = ['_', '_', '_', '_', '_', '_', '_'];
   }
-};
+}
 
 function botMove() {
   function makeGameBoardCopy() {
@@ -301,19 +328,17 @@ function won(currentPieceType) {
 }
 
 function getRow(column) {
-  let row = 0;
+  let row = 5;
   do {
     let pieceAtPosition = gameBoard[row][column];
+    console.log(pieceAtPosition)
     if (pieceAtPosition == '_') {
-      row++;
-    } else {
-      row--;
-      break;
+      return row;
     }
-  } while (true);
-  return (row == -1 ? -1 : row);
+    row--;
+  } while (row > -1);
+  return -1;
 }
 
+establishPlayerInput();
 makeGameBoard();
-const results = botMove();
-console.log(results);
