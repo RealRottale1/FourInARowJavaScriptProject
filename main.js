@@ -1,27 +1,71 @@
+const columnIndicator = document.getElementById("columnIndicator");
+const pieceHolder = document.getElementById("pieceHolder");
+
 const gameBoard = [];
 let selectedPlayerMove = 3;
 let playerTurn = true;
+let playingBot = true;
+
+function wait(time) {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve();
+    }, time);
+  });
+}
+
+async function placeChip(row, column, pType) {
+  const newPiece = document.createElement("img")
+  newPiece.src = `./assets/${(pType ? 'r' : 'y')}Piece.png`;
+  newPiece.id = "gamePlayPiece";
+  const doHorizontalTransition = (playingBot && !pType);
+  newPiece.style.left = (doHorizontalTransition ? "300px" : `${column * 100}px`);
+  newPiece.style.top = "0px";
+  const botWaitTime = Math.abs(column-3)*0.25;
+  newPiece.style.transition = `${botWaitTime}s linear`;
+  pieceHolder.appendChild(newPiece);
+  if (doHorizontalTransition) {
+    await wait(100);
+    newPiece.style.left = `${column * 100}px`
+    console.log(botWaitTime*100)
+    await wait(botWaitTime*100);
+  }
+  newPiece.style.transition = `${0.125*(row+1)}s linear`;
+  return new Promise(resolve => {
+    setTimeout(() => {
+      newPiece.style.top = `${(row+1) * 106.6667}px`;
+      columnIndicator.style.opacity = "0";
+      setTimeout(() => {
+        columnIndicator.src = `./assets/${(pType ? 'y' : 'r')}Piece.png`;
+        resolve();
+      }, 500 + 0.125*(row+1));
+    }, 100);
+  })
+}
 
 function establishPlayerInput() {
-  const columnIndicator = document.getElementById("columnIndicator");
   const columnDiv = document.getElementsByClassName("column");
   for (let i = 0; i < 7; i++) {
     columnDiv[i].addEventListener("mouseover", function() {
       columnIndicator.style.left = `${(i-3) * 100}px`;
       selectedPlayerMove = i;
     });
-    columnDiv[i].addEventListener("click", function() {
+    columnDiv[i].addEventListener("click", async function() {
+      selectedPlayerMove = i;
       if (playerTurn) {
         const row = getRow(i);
         if (row == -1) {
           return;
         }
-        playerTurn = false
+        playerTurn = false;
         gameBoard[row][i] = 'P';
+        await placeChip(row, i, true);
         const results = botMove();
+        await wait(1500);
         gameBoard[results[0]][results[1]] = 'C';
+        await placeChip(results[0], results[1], false);
         playerTurn = true;
-        console.log(gameBoard)
+        columnIndicator.style.opacity = "1";
       }
     });
   }

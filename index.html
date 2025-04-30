@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,10 +8,13 @@
     <link rel="stylesheet" href="./css.css">
     <script src="main.js" defer></script>
 </head>
+
 <body>
+    <img id="boardOverlay" src="./assets/board.png">
     <div id="gameBoardDiv">
-       <div id="columnIndicator"></div>
-       <div id="columnDiv"> 
+        <div id="pieceHolder"></div>
+        <img src="./assets/rPiece.png" id="columnIndicator">
+        <div id="columnDiv">
             <div id="column1" class="column">
             </div>
             <div id="column2" class="column">
@@ -25,7 +29,8 @@
             </div>
             <div id="column7" class="column">
             </div>
-       </div>
+        </div>
     </div>
 </body>
+
 </html>

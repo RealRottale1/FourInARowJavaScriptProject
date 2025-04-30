@@ -19,18 +19,42 @@ html, body {
     align-items: center;
 }
 
+#pieceHolder {
+    position: absolute;
+    background-color: aqua;
+    width: 700px;
+    height: 100px;
+}
+
+#gamePlayPiece {
+    z-index: 0;
+    position: absolute;
+    margin-bottom: 5px;
+    width: 100px;
+    height: 100px;
+}
+
 #columnIndicator {
     position: relative;
     top: 0;
     left: 0;
-    background-color: blueviolet;
+    margin-bottom: 5px;
     width: 100px;
-    height: 25px;
+    height: 100px;
+    transition: left 0.3s linear;
 }
 
 .column {
-    background-color: gray;
-    outline: 5px solid blue;
+    z-index: 999;
+    background-color: rgba(125, 125, 125, 0.5);
     width: 100px;
-    height: 500px;
+    height: 650px;
+}
+
+#boardOverlay {
+    z-index: 1;
+    margin-top: 150px;
+    width: 850px;
+    height: 750px;
+    position: absolute;
 }
