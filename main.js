@@ -1,5 +1,6 @@
 const columnIndicator = document.getElementById("columnIndicator");
 const pieceHolder = document.getElementById("pieceHolder");
+const messageElement = document.getElementById("message");
 
 const gameBoard = [];
 let selectedPlayerMove = 3;
@@ -15,7 +16,14 @@ function wait(time) {
   });
 }
 
+function setMessage(text, color) {
+  messageElement.opacity = 1;
+  messageElement.textContent = text;
+  messageElement.style.color = color;
+}
+
 function showWinLine(winLine) {
+  console.log(winLine)
   const allPlayPieces = document.getElementsByClassName("gamePlayPiece");
   const allPlayPiecesLength = allPlayPieces.length;
   for (let i = 0; i < allPlayPiecesLength; i++) {
@@ -120,6 +128,11 @@ function establishPlayerInput() {
           columnIndicator.style.opacity = "1";
           showWinLine(playerResults[1]);
           columnIndicator.src = "./assets/rPiece.png";
+          if (playingBot) {
+            setMessage('Player Won!', 'rgb(255, 0, 0)');
+          } else {
+            setMessage(`Player${(playerTurn ? '2' : '1')} Won!`, (playerTurn ? 'rgb(255, 0, 0)' : 'rgb(255, 255, 0)'));
+          }
           return;
         }
         if (boardFull()) {
@@ -140,6 +153,7 @@ function establishPlayerInput() {
           if (botResults[0]) {
             showWinLine(botResults[1]);
             columnIndicator.src = "./assets/rPiece.png";
+            setMessage('Bot Won!', 'rgb(125, 125, 125)');
             return;
           }
           if (boardFull()) {
@@ -414,6 +428,7 @@ function won(currentPieceType) {
         matches++;
         winLine.push([row, column]);
       } else {
+        matches = 0;
         winLine = [];
       }
       if (matches == 4) {
@@ -421,7 +436,7 @@ function won(currentPieceType) {
       }
     }
   }
-  for (let column = 0; column < 6; column++) {
+  for (let column = 0; column < 7; column++) {
     let matches = 0;
     for (let row = 5; row >= 0; row--) {
       const sameType = gameBoard[row][column] == currentPieceType;
@@ -429,6 +444,7 @@ function won(currentPieceType) {
         matches++;
         winLine.push([row, column]);
       } else {
+        matches = 0;
         winLine = [];
       }
       if (matches == 4) {
