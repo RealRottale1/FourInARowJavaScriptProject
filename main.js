@@ -1,18 +1,23 @@
 const columnIndicator = document.getElementById("columnIndicator");
 const pieceHolder = document.getElementById("pieceHolder");
 const messageElement = document.getElementById("message");
+const resetButton = document.getElementById("resetButton");
+const pvpButton = document.getElementById("pvpButton");
+const pvbButton = document.getElementById("pvbButton");
+const favIcon = document.getElementById("favIcon");
 
 const gameBoard = [];
 let selectedPlayerMove = 3;
+let gameStarted = false;
 let playCD = false;
 let playerTurn = true;
 let playingBot = true;
+let gameOver = false;
 
 const pieceColors = {
-  red: {textColor: "rgb(255, 0, 0)", outlineColor: "rgb(193, 0, 0)", backgroundColor: "rgb(125, 0 ,0)", pieceName: 'r'},
-  yellow: {textColor: "rgb(255, 255, 0)", outlineColor: "rgb(193, 193, 0)", backgroundColor: "rgb(125, 125 ,0)", pieceName: 'y'},
+  red: { textColor: "rgb(255, 0, 0)", outlineColor: "rgb(193, 0, 0)", backgroundColor: "rgb(125, 0 ,0)", pieceName: 'r' },
+  yellow: { textColor: "rgb(255, 255, 0)", outlineColor: "rgb(193, 193, 0)", backgroundColor: "rgb(125, 125 ,0)", pieceName: 'y' },
 }
-
 
 let p1PieceColor = pieceColors.red;
 let p2PieceColor = pieceColors.yellow;
@@ -26,7 +31,7 @@ function wait(time) {
 }
 
 function setMessage(text, pieceColorData) {
-  messageElement.opacity = 1;
+  messageElement.style.opacity = 1;
   messageElement.textContent = text;
   messageElement.style.color = pieceColorData.textColor;
   messageElement.style.outline = `15px solid ${pieceColorData.outlineColor}`;
@@ -57,56 +62,64 @@ function showWinLine(winLine) {
 
 async function playerPlaceChip(row, column, myColorData, enemyColorData) {
   const newPiece = document.createElement("img")
-  newPiece.src = `./assets/${myColorData.pieceName}Piece.png`;
+  const imgPath = `./assets/${myColorData.pieceName}Piece.png`;
+  favIcon.href = imgPath;
+  newPiece.src = imgPath;
   newPiece.classList.add("gamePlayPiece");
   newPiece.style.left = `${column * 100}px`;
   newPiece.style.top = "0px";
   newPiece.dataset.row = row;
   newPiece.dataset.column = column;
   pieceHolder.appendChild(newPiece);
-  newPiece.style.transition = `${0.125*(row+1)}s linear`;
+  newPiece.style.transition = `${0.125 * (row + 1)}s linear`;
   return new Promise(resolve => {
     setTimeout(() => {
-      newPiece.style.top = `${(row+1) * 106.6667}px`;
+      newPiece.style.top = `${(row + 1) * 106.6667}px`;
       columnIndicator.style.opacity = "0";
-      columnIndicator.src = `./assets/${enemyColorData.pieceName}Piece.png`;
+      const enemyImgPath = `./assets/${enemyColorData.pieceName}Piece.png`;
+      favIcon.href = enemyImgPath;
+      columnIndicator.src = enemyImgPath;
       setTimeout(() => {
         if (!playingBot) {
           columnIndicator.style.opacity = "1";
         }
         resolve();
-      }, 500 + 0.125*(row+1));
+      }, 500 + 0.125 * (row + 1));
     }, 100);
   })
 }
 
 async function botPlaceChip(row, column, myColorData, enemyColorData) {
   const newPiece = document.createElement("img")
-  newPiece.src = `./assets/${myColorData.pieceName}Piece.png`;
+  const imgPath = `./assets/${myColorData.pieceName}Piece.png`;
+  favIcon.href = imgPath;
+  newPiece.src = imgPath;
   newPiece.classList.add("gamePlayPiece");
   newPiece.style.left = "300px";
   newPiece.style.top = "0px";
   newPiece.dataset.row = row;
   newPiece.dataset.column = column;
   pieceHolder.appendChild(newPiece);
-  newPiece.style.transition = `${Math.abs(column-3)*0.25}s linear`;
+  newPiece.style.transition = `${Math.abs(column - 3) * 0.25}s linear`;
   return new Promise(resolve => {
     setTimeout(() => {
       newPiece.style.left = `${column * 100}px`
       setTimeout(() => {
-        newPiece.style.transition = `${0.125*(row+1)}s linear`;
+        newPiece.style.transition = `${0.125 * (row + 1)}s linear`;
         setTimeout(() => {
-          newPiece.style.top = `${(row+1) * 106.6667}px`;
+          newPiece.style.top = `${(row + 1) * 106.6667}px`;
           columnIndicator.style.opacity = "0";
-          columnIndicator.src = `./assets/${enemyColorData.pieceName}Piece.png`;
+          const enemyImgPath = `./assets/${enemyColorData.pieceName}Piece.png`;
+          favIcon.href = enemyImgPath;
+          columnIndicator.src = enemyImgPath;
           setTimeout(() => {
             if (!playingBot) {
               columnIndicator.style.opacity = "1";
             }
             resolve();
-          }, 500 + 0.125*(row+1));
+          }, 500 + 0.125 * (row + 1));
         }, 100);
-      },(column != 3) ? (500 + Math.abs(column-3)*25) : 0);
+      }, (column != 3) ? (500 + Math.abs(column - 3) * 25) : 0);
     }, 100);
   })
 }
@@ -114,15 +127,16 @@ async function botPlaceChip(row, column, myColorData, enemyColorData) {
 function establishPlayerInput() {
   const columnDiv = document.getElementsByClassName("column");
   for (let i = 0; i < 7; i++) {
-    columnDiv[i].addEventListener("mouseover", function() {
-      columnIndicator.style.left = `${(i-3) * 100}px`;
+    columnDiv[i].addEventListener("mouseover", function () {
+      columnIndicator.style.left = `${(i - 3) * 100}px`;
       selectedPlayerMove = i;
     });
-    columnDiv[i].addEventListener("click", async function() {
+    columnDiv[i].addEventListener("click", async function () {
       selectedPlayerMove = i;
       if (playCD) {
         return
       }
+      gameStarted = true;
       if ((playingBot && playerTurn) || !playingBot) {
         const row = getRow(i);
         if (row == -1) {
@@ -136,18 +150,24 @@ function establishPlayerInput() {
         if (playerResults[0]) {
           columnIndicator.style.opacity = "1";
           showWinLine(playerResults[1]);
-          columnIndicator.src = `./assets/${p1PieceColor.pieceName}Piece.png`;
+          const imgPath = `./assets/${p1PieceColor.pieceName}Piece.png`;
+          favIcon.href = imgPath;
+          columnIndicator.src = imgPath;
           if (playingBot) {
             setMessage('Player Won!', p1PieceColor);
           } else {
             setMessage(`Player${(playerTurn ? '2' : '1')} Won!`, (playerTurn ? p1PieceColor : p2PieceColor));
           }
+          gameOver = true;
           return;
         }
         if (boardFull()) {
           playerTurn = true;
           columnIndicator.style.opacity = "1";
-          columnIndicator.src = `./assets/${p1PieceColor.pieceName}Piece.png`;
+          const imgPath = `./assets/${p1PieceColor.pieceName}Piece.png`;
+          favIcon.href = imgPath;
+          columnIndicator.src = imgPath;
+          gameOver = true;
           return;
         }
         playerTurn = !playerTurn;
@@ -161,12 +181,18 @@ function establishPlayerInput() {
           const botResults = won('C');
           if (botResults[0]) {
             showWinLine(botResults[1]);
-            columnIndicator.src = `./assets/${p1PieceColor.pieceName}Piece.png`;
+            const imgPath = `./assets/${p1PieceColor.pieceName}Piece.png`;
+            favIcon.href = imgPath;
+            columnIndicator.src = imgPath;
             setMessage('Bot Won!', p2PieceColor);
+            gameOver = true;
             return;
           }
           if (boardFull()) {
-            columnIndicator.src = `./assets/${p1PieceColor.pieceName}Piece.png`;
+            const imgPath = `./assets/${p1PieceColor.pieceName}Piece.png`;
+            favIcon.href = imgPath;
+            columnIndicator.src = imgPath;
+            gameOver = true;
             return;
           }
         }
@@ -510,30 +536,82 @@ function getRow(column) {
 }
 
 function cat() {
-  let catString= "";
-  document.addEventListener("keydown", function(event) {
-    const key = event.key.toLowerCase(); 
-    if ("cat".includes(key) && !catString.includes(key)) {
+  let catString = "";
+  document.addEventListener("keydown", function (event) {
+    const key = event.key.toLowerCase();
+    if ("cat".includes(key) && !(catString.includes(key))) {
       catString += key;
-      if (catString.length == 3) {
-        if (catString == "cat") {
-          const allPlayPieces = document.getElementsByClassName("gamePlayPiece");
-          const allPlayPiecesLength = allPlayPieces.length;
-          for (let i = 0; i < allPlayPiecesLength; i++) {
-            const selectedPlayPiece = allPlayPieces[i];
-            if (!selectedPlayPiece.src.includes("catPiece")) {
-              selectedPlayPiece.src = "./assets/catPiece.png";
-              break;
+      const catStringLength = catString.length;
+      if (catStringLength >= 1) {
+        if (catString[0] == 'c') {
+          if (catStringLength >= 2) {
+            if (catString[1] == 'a') {
+              if (catStringLength == 3) {
+                if (catString[2] == 't') {
+                  const allPlayPieces = document.getElementsByClassName("gamePlayPiece");
+                  const allPlayPiecesLength = allPlayPieces.length;
+                  for (let i = 0; i < allPlayPiecesLength; i++) {
+                    const selectedPlayPiece = allPlayPieces[i];
+                    if (!selectedPlayPiece.src.includes("catPiece")) {
+                      selectedPlayPiece.src = "./assets/catPiece.png";
+                      break;
+                    }
+                    catString = "";
+                  }
+                } else {
+                  catString = "";
+                }
+              }
+            } else {
+              catString = "";
             }
           }
+        } else {
+          catString = "";
         }
-        catString = "";
       }
     } else {
       catString = "";
     }
   });
 }
+
+resetButton.addEventListener("click", function () {
+  if (!playCD || gameOver) {
+    playCD = true;
+    messageElement.style.opacity = 0;
+    messageElement.textContent = '';
+    gameOver = false;
+    const allPlayPieces = document.getElementsByClassName("gamePlayPiece");
+    const allPlayPiecesLength = allPlayPieces.length;
+    for (let i = allPlayPiecesLength - 1; i >= 0; i--) {
+      const selectedPlayPiece = allPlayPieces[i];
+      pieceHolder.removeChild(selectedPlayPiece);
+    }
+    columnIndicator.src = `./assets/${p1PieceColor.pieceName}Piece.png`;
+    gameBoard.splice(0, gameBoard.length);
+    makeGameBoard();
+    gameStarted = false;
+    playerTurn = true;
+    playCD = false;
+  }
+});
+
+pvpButton.addEventListener("click", function() {
+  if (!gameStarted) {
+    playingBot = false;
+    pvpButton.style.filter = "brightness(50%)";
+    pvbButton.style.filter = "brightness(100%)";
+  }
+});
+
+pvbButton.addEventListener("click", function() {
+  if (!gameStarted) {
+    playingBot = true;
+    pvbButton.style.filter = "brightness(50%)";
+    pvpButton.style.filter = "brightness(100%)";
+  }
+});
 
 cat();
 columnIndicator.src = `./assets/${p1PieceColor.pieceName}Piece.png`;

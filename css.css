@@ -81,3 +81,39 @@
     margin: 0px;
     margin-top: 15px;
 }
+
+#optionsDiv {
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+    padding: 0px;
+    margin: 0px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 25px;
+}
+
+#resetButton:hover, #pvpButton:hover, #pvbButton:hover {
+    outline: 5px solid rgb(113, 113, 113);
+    color: rgb(97, 97, 97);
+    background-color: rgb(208, 208, 208);
+}
+
+#resetButton, #pvpButton, #pvbButton {
+    border: 0px solid black;
+    outline: 5px solid rgb(95, 95, 95);
+    color: rgb(79, 79, 79);
+    background-color: rgb(190, 190, 190);
+    z-index: 99;
+    padding: 15px;
+    border-radius: 25px;
+    text-align: center;
+    display: flex;
+    text-align: center;
+    white-space: nowrap;
+    font-size: 100px;
+    font-family: 'Fira Code', monospace;
+    margin: 0px;
+    margin-bottom: 15px;
+}
