@@ -1,7 +1,7 @@
 
-#mainDiv, html {
+#mainDiv {
     height: 100%;
-    margin: 0;
+    margin-top: 25vh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -58,12 +58,26 @@
     position: absolute;
 }
 
-#message {
-    text-align: center;
-    position: relative;
-    bottom: 125%;
+#messageDiv {
+    position: absolute;
+    top: 0px;
+    width: 100%;
     padding: 0px;
     margin: 0px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#message {
+    padding: 15px;
+    border-radius: 25px;
+    text-align: center;
+    display: flex;
+    text-align: center;
+    white-space: nowrap;
     font-size: 100px;
     font-family: 'Fira Code', monospace;
+    margin: 0px;
+    margin-top: 15px;
 }

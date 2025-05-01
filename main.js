@@ -6,7 +6,16 @@ const gameBoard = [];
 let selectedPlayerMove = 3;
 let playCD = false;
 let playerTurn = true;
-let playingBot = false;
+let playingBot = true;
+
+const pieceColors = {
+  red: {textColor: "rgb(255, 0, 0)", outlineColor: "rgb(193, 0, 0)", backgroundColor: "rgb(125, 0 ,0)", pieceName: 'r'},
+  yellow: {textColor: "rgb(255, 255, 0)", outlineColor: "rgb(193, 193, 0)", backgroundColor: "rgb(125, 125 ,0)", pieceName: 'y'},
+}
+
+
+let p1PieceColor = pieceColors.red;
+let p2PieceColor = pieceColors.yellow;
 
 function wait(time) {
   return new Promise(resolve => {
@@ -16,14 +25,15 @@ function wait(time) {
   });
 }
 
-function setMessage(text, color) {
+function setMessage(text, pieceColorData) {
   messageElement.opacity = 1;
   messageElement.textContent = text;
-  messageElement.style.color = color;
+  messageElement.style.color = pieceColorData.textColor;
+  messageElement.style.outline = `15px solid ${pieceColorData.outlineColor}`;
+  messageElement.style.background = pieceColorData.backgroundColor;
 }
 
 function showWinLine(winLine) {
-  console.log(winLine)
   const allPlayPieces = document.getElementsByClassName("gamePlayPiece");
   const allPlayPiecesLength = allPlayPieces.length;
   for (let i = 0; i < allPlayPiecesLength; i++) {
@@ -45,9 +55,9 @@ function showWinLine(winLine) {
   }
 }
 
-async function playerPlaceChip(row, column, pType) {
+async function playerPlaceChip(row, column, myColorData, enemyColorData) {
   const newPiece = document.createElement("img")
-  newPiece.src = `./assets/${(pType ? 'r' : 'y')}Piece.png`;
+  newPiece.src = `./assets/${myColorData.pieceName}Piece.png`;
   newPiece.classList.add("gamePlayPiece");
   newPiece.style.left = `${column * 100}px`;
   newPiece.style.top = "0px";
@@ -59,7 +69,7 @@ async function playerPlaceChip(row, column, pType) {
     setTimeout(() => {
       newPiece.style.top = `${(row+1) * 106.6667}px`;
       columnIndicator.style.opacity = "0";
-      columnIndicator.src = `./assets/${(pType ? 'y' : 'r')}Piece.png`;
+      columnIndicator.src = `./assets/${enemyColorData.pieceName}Piece.png`;
       setTimeout(() => {
         if (!playingBot) {
           columnIndicator.style.opacity = "1";
@@ -70,9 +80,9 @@ async function playerPlaceChip(row, column, pType) {
   })
 }
 
-async function botPlaceChip(row, column, pType) {
+async function botPlaceChip(row, column, myColorData, enemyColorData) {
   const newPiece = document.createElement("img")
-  newPiece.src = `./assets/${(pType ? 'r' : 'y')}Piece.png`;
+  newPiece.src = `./assets/${myColorData.pieceName}Piece.png`;
   newPiece.classList.add("gamePlayPiece");
   newPiece.style.left = "300px";
   newPiece.style.top = "0px";
@@ -88,7 +98,7 @@ async function botPlaceChip(row, column, pType) {
         setTimeout(() => {
           newPiece.style.top = `${(row+1) * 106.6667}px`;
           columnIndicator.style.opacity = "0";
-          columnIndicator.src = `./assets/${(pType ? 'y' : 'r')}Piece.png`;
+          columnIndicator.src = `./assets/${enemyColorData.pieceName}Piece.png`;
           setTimeout(() => {
             if (!playingBot) {
               columnIndicator.style.opacity = "1";
@@ -121,24 +131,23 @@ function establishPlayerInput() {
         playCD = true;
         const playPiece = (!playingBot ? (playerTurn ? 'P' : 'C') : 'P');
         gameBoard[row][i] = playPiece;
-        await playerPlaceChip(row, i, playerTurn);
+        await playerPlaceChip(row, i, (playerTurn ? p1PieceColor : p2PieceColor), (playerTurn ? p2PieceColor : p1PieceColor));
         const playerResults = won(playPiece);
         if (playerResults[0]) {
-          playerTurn = true;
           columnIndicator.style.opacity = "1";
           showWinLine(playerResults[1]);
-          columnIndicator.src = "./assets/rPiece.png";
+          columnIndicator.src = `./assets/${p1PieceColor.pieceName}Piece.png`;
           if (playingBot) {
-            setMessage('Player Won!', 'rgb(255, 0, 0)');
+            setMessage('Player Won!', p1PieceColor);
           } else {
-            setMessage(`Player${(playerTurn ? '2' : '1')} Won!`, (playerTurn ? 'rgb(255, 0, 0)' : 'rgb(255, 255, 0)'));
+            setMessage(`Player${(playerTurn ? '2' : '1')} Won!`, (playerTurn ? p1PieceColor : p2PieceColor));
           }
           return;
         }
         if (boardFull()) {
           playerTurn = true;
           columnIndicator.style.opacity = "1";
-          columnIndicator.src = "./assets/rPiece.png";
+          columnIndicator.src = `./assets/${p1PieceColor.pieceName}Piece.png`;
           return;
         }
         playerTurn = !playerTurn;
@@ -146,18 +155,18 @@ function establishPlayerInput() {
           const results = botMove();
           await wait(1500);
           gameBoard[results[0]][results[1]] = 'C';
-          await botPlaceChip(results[0], results[1], false);
+          await botPlaceChip(results[0], results[1], p2PieceColor, p1PieceColor);
           playerTurn = true;
           columnIndicator.style.opacity = "1";
           const botResults = won('C');
           if (botResults[0]) {
             showWinLine(botResults[1]);
-            columnIndicator.src = "./assets/rPiece.png";
-            setMessage('Bot Won!', 'rgb(125, 125, 125)');
+            columnIndicator.src = `./assets/${p1PieceColor.pieceName}Piece.png`;
+            setMessage('Bot Won!', p2PieceColor);
             return;
           }
           if (boardFull()) {
-            columnIndicator.src = "./assets/rPiece.png";
+            columnIndicator.src = `./assets/${p1PieceColor.pieceName}Piece.png`;
             return;
           }
         }
@@ -500,5 +509,33 @@ function getRow(column) {
   return -1;
 }
 
+function cat() {
+  let catString= "";
+  document.addEventListener("keydown", function(event) {
+    const key = event.key.toLowerCase(); 
+    if ("cat".includes(key) && !catString.includes(key)) {
+      catString += key;
+      if (catString.length == 3) {
+        if (catString == "cat") {
+          const allPlayPieces = document.getElementsByClassName("gamePlayPiece");
+          const allPlayPiecesLength = allPlayPieces.length;
+          for (let i = 0; i < allPlayPiecesLength; i++) {
+            const selectedPlayPiece = allPlayPieces[i];
+            if (!selectedPlayPiece.src.includes("catPiece")) {
+              selectedPlayPiece.src = "./assets/catPiece.png";
+              break;
+            }
+          }
+        }
+        catString = "";
+      }
+    } else {
+      catString = "";
+    }
+  });
+}
+
+cat();
+columnIndicator.src = `./assets/${p1PieceColor.pieceName}Piece.png`;
 establishPlayerInput();
 makeGameBoard();
