@@ -6,6 +6,15 @@ const pvpButton = document.getElementById("pvpButton");
 const pvbButton = document.getElementById("pvbButton");
 const favIcon = document.getElementById("favIcon");
 
+window.onload = function() {
+  // Start background music
+  document.getElementById('music').play();
+}
+document.addEventListener('click', function playOnClick() {
+  document.getElementById('music').play();
+  document.removeEventListener('click', playOnClick);
+});
+
 const gameBoard = [];
 let selectedPlayerMove = 3;
 let gameStarted = false;
