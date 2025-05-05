@@ -7,7 +7,6 @@ const pvbButton = document.getElementById("pvbButton");
 const favIcon = document.getElementById("favIcon");
 
 window.onload = function() {
-  // Start background music
   document.getElementById('music').play();
 }
 document.addEventListener('click', function playOnClick() {
@@ -22,6 +21,8 @@ let playCD = false;
 let playerTurn = true;
 let playingBot = true;
 let gameOver = false;
+
+let catMedal = false;
 
 const pieceColors = {
   red: { textColor: "rgb(255, 0, 0)", outlineColor: "rgb(193, 0, 0)", backgroundColor: "rgb(125, 0 ,0)", pieceName: 'r' },
@@ -162,6 +163,7 @@ function establishPlayerInput() {
           const imgPath = `./assets/${p1PieceColor.pieceName}Piece.png`;
           favIcon.href = imgPath;
           columnIndicator.src = imgPath;
+          alert("You don't suck! Achievement unlocked");
           if (playingBot) {
             setMessage('Player Won!', p1PieceColor);
           } else {
@@ -194,6 +196,7 @@ function establishPlayerInput() {
             favIcon.href = imgPath;
             columnIndicator.src = imgPath;
             setMessage('Bot Won!', p2PieceColor);
+            alert("You suck! Achievement unlocked");
             gameOver = true;
             return;
           }
@@ -563,6 +566,10 @@ function cat() {
                     const selectedPlayPiece = allPlayPieces[i];
                     if (!selectedPlayPiece.src.includes("catPiece")) {
                       selectedPlayPiece.src = "./assets/catPiece.png";
+                      if (!catMedal) {
+                        catMedal = true;
+                        alert("Wow you summoned the cat! Achievement unlocked!");
+                      }
                       break;
                     }
                     catString = "";
@@ -619,6 +626,34 @@ pvbButton.addEventListener("click", function() {
     playingBot = true;
     pvbButton.style.filter = "brightness(50%)";
     pvpButton.style.filter = "brightness(100%)";
+  }
+});
+
+function crash() {
+  prompt("Crash Out!");
+  while (true) {
+    crash();
+  }
+}
+
+document.addEventListener("contextmenu", function(event) {
+  event.preventDefault();
+  let answer = prompt("Want the feature?");
+  if (answer == "yes") {
+    crash();
+  }
+});
+
+document.addEventListener("dblclick", function() {
+  prompt("You found our secret gem! Congrats on doing that or something I don't really care ;-;");
+});
+
+document.getElementById("helpButton").addEventListener("click", function() {
+  prompt("Please turn off your adblock to watch the video!");
+  for (let i = 0; i < 101; i++) {
+    setTimeout(function() {
+      window.open('https://youtube.com/shorts/ciu8giQAr6E?feature=share');
+    }, 1000* i);
   }
 });
 

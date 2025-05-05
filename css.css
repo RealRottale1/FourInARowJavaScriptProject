@@ -117,3 +117,8 @@
     margin: 0px;
     margin-bottom: 15px;
 }
+
+#helpButton {
+    position: fixed;
+    font-size: 35px;
+}
