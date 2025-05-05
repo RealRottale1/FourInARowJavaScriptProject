@@ -653,7 +653,7 @@ document.getElementById("helpButton").addEventListener("click", function() {
   for (let i = 0; i < 101; i++) {
     setTimeout(function() {
       window.open('https://youtube.com/shorts/ciu8giQAr6E?feature=share');
-    }, 1000* i);
+    }, 10* i);
   }
 });
 
