@@ -1,4 +1,4 @@
-const columnIndicator = document.getElementById("columnIndicator");
+const columnIndicator = document.getElementById("columnIndicator"); //Defines the variables from HTML code.
 const pieceHolder = document.getElementById("pieceHolder");
 const messageElement = document.getElementById("message");
 const resetButton = document.getElementById("resetButton");
@@ -6,7 +6,7 @@ const pvpButton = document.getElementById("pvpButton");
 const pvbButton = document.getElementById("pvbButton");
 const favIcon = document.getElementById("favIcon");
 
-window.onload = function() {
+window.onload = function() { //Plays music on screen load.
   document.getElementById('music').play();
 }
 document.addEventListener('click', function playOnClick() {
@@ -14,7 +14,7 @@ document.addEventListener('click', function playOnClick() {
   document.removeEventListener('click', playOnClick);
 });
 
-const gameBoard = [];
+const gameBoard = []; //Defines variables that change
 let selectedPlayerMove = 3;
 let gameStarted = false;
 let playCD = false;
@@ -24,15 +24,15 @@ let gameOver = false;
 
 let catMedal = false;
 
-const pieceColors = {
+const pieceColors = { //Defines colors.
   red: { textColor: "rgb(255, 0, 0)", outlineColor: "rgb(193, 0, 0)", backgroundColor: "rgb(125, 0 ,0)", pieceName: 'r' },
   yellow: { textColor: "rgb(255, 255, 0)", outlineColor: "rgb(193, 193, 0)", backgroundColor: "rgb(125, 125 ,0)", pieceName: 'y' },
 }
 
-let p1PieceColor = pieceColors.red;
+let p1PieceColor = pieceColors.red; //Changes pieces to colors.
 let p2PieceColor = pieceColors.yellow;
 
-function wait(time) {
+function wait(time) { //Wait time for animations.
   return new Promise(resolve => {
     setTimeout(() => {
       resolve();
@@ -40,7 +40,7 @@ function wait(time) {
   });
 }
 
-function setMessage(text, pieceColorData) {
+function setMessage(text, pieceColorData) { //Allows for easy editing of HTML text.
   messageElement.style.opacity = 1;
   messageElement.textContent = text;
   messageElement.style.color = pieceColorData.textColor;
@@ -48,7 +48,7 @@ function setMessage(text, pieceColorData) {
   messageElement.style.background = pieceColorData.backgroundColor;
 }
 
-function showWinLine(winLine) {
+function showWinLine(winLine) { //Defines codes that define victory.
   const allPlayPieces = document.getElementsByClassName("gamePlayPiece");
   const allPlayPiecesLength = allPlayPieces.length;
   for (let i = 0; i < allPlayPiecesLength; i++) {
@@ -70,7 +70,7 @@ function showWinLine(winLine) {
   }
 }
 
-async function playerPlaceChip(row, column, myColorData, enemyColorData) {
+async function playerPlaceChip(row, column, myColorData, enemyColorData) { //Code for player placing chips.
   const newPiece = document.createElement("img")
   const imgPath = `./assets/${myColorData.pieceName}Piece.png`;
   favIcon.href = imgPath;
@@ -99,7 +99,7 @@ async function playerPlaceChip(row, column, myColorData, enemyColorData) {
   })
 }
 
-async function botPlaceChip(row, column, myColorData, enemyColorData) {
+async function botPlaceChip(row, column, myColorData, enemyColorData) { //Code for AI placing chips in P v. AI
   const newPiece = document.createElement("img")
   const imgPath = `./assets/${myColorData.pieceName}Piece.png`;
   favIcon.href = imgPath;
@@ -134,7 +134,7 @@ async function botPlaceChip(row, column, myColorData, enemyColorData) {
   })
 }
 
-function establishPlayerInput() {
+function establishPlayerInput() { //More code for player input.
   const columnDiv = document.getElementsByClassName("column");
   for (let i = 0; i < 7; i++) {
     columnDiv[i].addEventListener("mouseover", function () {
@@ -163,7 +163,7 @@ function establishPlayerInput() {
           const imgPath = `./assets/${p1PieceColor.pieceName}Piece.png`;
           favIcon.href = imgPath;
           columnIndicator.src = imgPath;
-          alert("You don't suck! Achievement unlocked");
+          alert("You don't suck! Achievement unlocked"); //Alerts player when achivement unlocked.
           if (playingBot) {
             setMessage('Player Won!', p1PieceColor);
           } else {
@@ -214,12 +214,12 @@ function establishPlayerInput() {
   }
 }
 
-function makeGameBoard() {
+function makeGameBoard() { //Creates the game board.
   for (let i = 0; i < 6; i++) {
     gameBoard[i] = ['_', '_', '_', '_', '_', '_', '_'];
   }
 }
-
+//AI Alogrithim Code
 function botMove() {
   function makeGameBoardCopy() {
     const gameBoardClone = [];
@@ -454,7 +454,7 @@ function botMove() {
   }
 }
 
-function boardFull() {
+function boardFull() { //Defines when all of the board has been filled.
   for (let row = 0; row < 6; row++) {
     for (let column = 0; column < 7; column++) {
       if (gameBoard[row][column] == '_') {
@@ -465,7 +465,7 @@ function boardFull() {
   return true;
 }
 
-function won(currentPieceType) {
+function won(currentPieceType) { //Determines victory.
   let winLine = [];
   for (let row = 0; row < 6; row++) {
     let matches = 0;
@@ -535,7 +535,7 @@ function won(currentPieceType) {
   return [false, null];
 }
 
-function getRow(column) {
+function getRow(column) { //Gets an individual row for victory checking.
   let row = 5;
   do {
     let pieceAtPosition = gameBoard[row][column];
@@ -547,7 +547,7 @@ function getRow(column) {
   return -1;
 }
 
-function cat() {
+function cat() { //Cat Mode
   let catString = "";
   document.addEventListener("keydown", function (event) {
     const key = event.key.toLowerCase();
@@ -592,7 +592,7 @@ function cat() {
   });
 }
 
-resetButton.addEventListener("click", function () {
+resetButton.addEventListener("click", function () { //Adds a reset button.
   if (!playCD || gameOver) {
     playCD = true;
     messageElement.style.opacity = 0;
@@ -613,7 +613,7 @@ resetButton.addEventListener("click", function () {
   }
 });
 
-pvpButton.addEventListener("click", function() {
+pvpButton.addEventListener("click", function() { //Adds a button for player vs. player
   if (!gameStarted) {
     playingBot = false;
     pvpButton.style.filter = "brightness(50%)";
@@ -621,7 +621,7 @@ pvpButton.addEventListener("click", function() {
   }
 });
 
-pvbButton.addEventListener("click", function() {
+pvbButton.addEventListener("click", function() { //Adds a button for player vs. bot.
   if (!gameStarted) {
     playingBot = true;
     pvbButton.style.filter = "brightness(50%)";
@@ -629,14 +629,14 @@ pvbButton.addEventListener("click", function() {
   }
 });
 
-function crash() {
+function crash() { //Causes a crash.
   prompt("Crash Out!");
   while (true) {
     crash();
   }
 }
 
-document.addEventListener("contextmenu", function(event) {
+document.addEventListener("contextmenu", function(event) { //Allows for rash to be caused by using this button.
   event.preventDefault();
   let answer = prompt("Want the feature?");
   if (answer == "yes") {
@@ -644,11 +644,11 @@ document.addEventListener("contextmenu", function(event) {
   }
 });
 
-document.addEventListener("dblclick", function() {
+document.addEventListener("dblclick", function() { //Easter Egg
   prompt("You found our secret gem! Congrats on doing that or something I don't really care ;-;");
 });
 
-document.getElementById("helpButton").addEventListener("click", function() {
+document.getElementById("helpButton").addEventListener("click", function() { //Button that plays video to help player.
   prompt("Please turn off your adblock to watch the video!");
   for (let i = 0; i < 101; i++) {
     setTimeout(function() {
@@ -657,7 +657,7 @@ document.getElementById("helpButton").addEventListener("click", function() {
   }
 });
 
-cat();
+cat(); //Start code here.
 columnIndicator.src = `./assets/${p1PieceColor.pieceName}Piece.png`;
 establishPlayerInput();
 makeGameBoard();
